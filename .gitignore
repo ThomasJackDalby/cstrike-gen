@@ -1,3 +1,7 @@
 tiles/
-
-*.vmf
+components/
+__pycache__/
+**/*.vmf
+**/*.vmx
+**/*.json
+cstrike_gen.egg-info/

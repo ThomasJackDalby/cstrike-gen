@@ -1,16 +1,31 @@
 import json, copy, os
-import vmf_parser, vmf_formatter
+from vmf_parser import VmfParser
+from vmf_formatter import VmfFormatter
+
+tiles_data = {}
+cached_component_file_vmfs = {}
+
+def process_tiles(tiles_file_path):
+    global tiles_data, cached_component_file_vmfs
+    with open(tiles_file_path, "r") as tiles_file:
+        tiles_data = json.load(tiles_file)
+
+    for tile_id in tiles_data["tiles"]:
+        tile_vmf = get_tile_vmf(tile_id)
+        formatter = VmfFormatter()
+        formatter.format(f"tiles/tile_{tile_id}.vmf", tile_vmf)
 
 def process_map(map_file_path, map_seed=None):
-    global map_data, tiles_data, cached_tile_vmfs
+    global map_data, tiles_data, cached_component_file_vmfs
+
+    tile_width = 192
+    tile_height = 192
 
     map_file_name = os.path.basename(map_file_path)
     map_name = os.path.splitext(map_file_name)[0]
     print(f"Processing [{map_name}]...")
 
     map_data = {}
-    tiles_data = {}
-    cached_tile_vmfs = {}
 
     with open(map_file_path, "r") as map_file:
         map_data = json.load(map_file)
@@ -34,19 +49,15 @@ def process_map(map_file_path, map_seed=None):
         print(f"> [{map_seed}]...")
         map_tiles = map_data["maps"][map_seed]
 
-        map_vmf = { 
-            "world": [{
-                "solid" : []
-            }],
-            "entity": []
-        }
+        # TODO: Need to update this to have required contents
+        map_vmf = get_blank_vmf()
 
         for y in range(map_length):
             for x in range(map_width):
                 index = get_index(x, y)
                 tile_id = map_tiles[index]
                 tile_vmf = get_tile_vmf(tile_id)
-                tile_vmf = translate(tile_vmf, x * 256, y * 256)
+                tile_vmf = translate(tile_vmf, x * tile_width, y * tile_height)
                 merge_vmf(map_vmf, tile_vmf)
 
         solid_id = 0
@@ -69,7 +80,7 @@ def process_map(map_file_path, map_seed=None):
                         side["id"] = side_id
                         side_id += 1
 
-        formatter = vmf_formatter.VmfFormatter()
+        formatter = VmfFormatter()
         formatter.format(f"{map_name}_{map_seed}.vmf", map_vmf)
 
 def translate(tile_vmf, x, y):
@@ -118,24 +129,59 @@ def parse_plane(plane_data):
 def format_plane(plane):
     return " ".join((f"({point[0]} {point[1]} {point[2]})" for point in plane))
 
-def merge_vmf(a, b):
+def merge_vmf(a, b, solid_ids=None, entity_ids=None,debug=False):
     if "solid" in b["world"][0]:
-        for solid in b["world"][0]["solid"]:
-            a["world"][0]["solid"].append(solid)
+        if solid_ids:
+            for solid_id in solid_ids:
+                solid = b["world"][0]["solid"][solid_id]
+                a["world"][0]["solid"].append(solid)
+        else:
+            for solid in b["world"][0]["solid"]:
+                a["world"][0]["solid"].append(solid)
     if "entity" in b:
         for entity in b["entity"]:
+            if entity_ids and entity["id"] not in entity_ids:
+                continue
             a["entity"].append(entity)
 
 def get_tile_vmf(tile_id):
-    global tiles_data, cached_tile_vmfs
+    global tiles_data
+    tile = tiles_data["tiles"][tile_id]
+    tile_vmf = get_blank_vmf()
+    for component_id in tile["components"]:
+        component_vmf = get_component_vmf(component_id)
+        merge_vmf(tile_vmf, component_vmf)
+    return tile_vmf
 
-    if tile_id not in cached_tile_vmfs:
-        tile = tiles_data["tiles"][tile_id]
-        tile_file_path = tile["file_path"]
-        parser = vmf_parser.VmfParser()
-        tile_vmf = parser.parse(tile_file_path)
-        cached_tile_vmfs[tile_id] = tile_vmf
-    return cached_tile_vmfs[tile_id]
+def get_blank_vmf():
+    return { 
+            "world": [{
+                "solid" : []
+            }],
+            "entity": []
+        }
+
+def get_component_vmf(component_id):
+    global tiles_data, cached_component_file_vmfs
+
+    component = tiles_data["components"][str(component_id)]
+    component_file_id = component["component_file"]
+    if component_file_id not in cached_component_file_vmfs:
+        component_file_path = tiles_data["component_files"][str(component_file_id)]
+        parser = VmfParser()
+        component_file_vmf = parser.parse(component_file_path)
+        cached_component_file_vmfs[component_file_id] = component_file_vmf
+    else:
+        component_file_vmf = cached_component_file_vmfs[component_file_id]
+
+    debug = True if component_id == 33 else False
+    component_vmf = get_blank_vmf()
+    component_solids = component["solids"] if "solids" in component else None
+    component_entities = component["entities"] if "entities" in component else None
+    merge_vmf(component_vmf, component_file_vmf, solid_ids=component_solids, entity_ids=component_entities, debug=debug)
+    
+    return component_vmf
 
 if __name__ == "__main__":
-    process_map("solan.json")
+    #process_tiles("tiles_generate.json")
+    process_map("test.json")

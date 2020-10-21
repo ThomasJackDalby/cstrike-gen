@@ -1,5 +1,4 @@
-import os
-import json
+import os, json
 
 def process_tiles(folder_path):
     # generates an available tiles list
