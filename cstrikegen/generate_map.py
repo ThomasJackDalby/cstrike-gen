@@ -1,5 +1,5 @@
 import random, json, os
-from cstrike_gen import *
+from cstrikegen.constants import *
 
 class MapGenerator:
     def __init__(self, map_file_path):

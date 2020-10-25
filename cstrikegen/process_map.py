@@ -1,6 +1,6 @@
 import json, copy, os
-from vmf_parser import VmfParser
-from vmf_formatter import VmfFormatter
+from cstrikegen.vmf_parser import VmfParser
+from cstrikegen.vmf_formatter import VmfFormatter
 
 class MapProcessor:
     def __init__(self, map_file_path):
