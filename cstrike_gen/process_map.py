@@ -18,9 +18,6 @@ def process_tiles(tiles_file_path):
 def process_map(map_file_path, map_seed=None):
     global map_data, tiles_data, cached_component_file_vmfs
 
-    tile_width = 192
-    tile_height = 192
-
     map_file_name = os.path.basename(map_file_path)
     map_name = os.path.splitext(map_file_name)[0]
     print(f"Processing [{map_name}]...")
@@ -33,6 +30,8 @@ def process_map(map_file_path, map_seed=None):
     with open(map_data["tiles_file_path"], "r") as tiles_file:
         tiles_data = json.load(tiles_file)
 
+    tile_width = 192
+    tile_height = 192
     map_width = map_data["map_width"]
     map_length = map_data["map_length"]
 
@@ -46,10 +45,9 @@ def process_map(map_file_path, map_seed=None):
         map_seeds.append(map_seed)
 
     for map_seed in map_seeds:
-        print(f"> [{map_seed}]...")
+        print(f"> [{map_seed}]")
         map_tiles = map_data["maps"][map_seed]
 
-        # TODO: Need to update this to have required contents
         map_vmf = get_blank_vmf()
 
         for y in range(map_length):
@@ -154,6 +152,7 @@ def get_tile_vmf(tile_id):
     return tile_vmf
 
 def get_blank_vmf():
+    # TODO: Need to update this to have required contents
     return { 
             "world": [{
                 "solid" : []
@@ -176,12 +175,29 @@ def get_component_vmf(component_id):
 
     debug = True if component_id == 33 else False
     component_vmf = get_blank_vmf()
-    component_solids = component["solids"] if "solids" in component else None
-    component_entities = component["entities"] if "entities" in component else None
+
+    if "solids" in component: component_solids = component["solids"]
+    elif "solid" in component_file_vmf["world"][0]: component_solids = component_file_vmf["world"][0]["solid"]
+    else: component_entities = None
+
+    if "entities" in component: component_entities = component["entities"]
+    elif "entity" in component_file_vmf: component_entities = [entity["id"] for entity in component_file_vmf["entity"]]
+    else: component_entities = None
     merge_vmf(component_vmf, component_file_vmf, solid_ids=component_solids, entity_ids=component_entities, debug=debug)
     
     return component_vmf
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('file_path', help='map config filepath')
+    args = parser.parse_args()
+
+
+    if not os.path.exists(args.file_path):
+        print(f"No map file at [{args.file_path}]")
+    else:
+        process_map(args.file_path)
+
+
     #process_tiles("tiles_generate.json")
-    process_map("test.json")
