@@ -1,7 +1,18 @@
+# .gitignore
+
+# General
 tiles/
 components/
 __pycache__/
+cstrike_gen.egg-info/
+.vscode/
+
+# Data/Config files
+**/*.json
+
+# Hammer Editor Files
 **/*.vmf
 **/*.vmx
-**/*.json
-cstrike_gen.egg-info/
+**/*.bsp
+**/*.log
+**/*.prt
