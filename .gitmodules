@@ -1,0 +1,3 @@
+[submodule "v2/CSMP/modules/sledge-formats"]
+	path = v2/CSMP/modules/sledge-formats
+	url = https://github.com/LogicAndTrick/sledge-formats.git
