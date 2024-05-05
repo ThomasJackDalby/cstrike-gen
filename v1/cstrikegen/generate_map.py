@@ -1,4 +1,4 @@
-import random, json, os
+import random, json, os, math
 from cstrikegen.constants import *
 
 class MapGenerator:
@@ -14,9 +14,14 @@ class MapGenerator:
             print(f"Loading tiles data from [{self.map_data['tiles_file_path']}]")
             self.tiles_data = json.load(tiles_file)
 
+        self.empty_id = next((tile_id for tile_id in self.tiles_data['tiles'] if self.tiles_data['tiles'][tile_id]["name"] == "empty"), None)
+        self.t_spawn_id = next((tile_id for tile_id in self.tiles_data['tiles'] if self.tiles_data['tiles'][tile_id]["name"] == "t_spawn"), None)
+        self.ct_spawn_id = next((tile_id for tile_id in self.tiles_data['tiles'] if self.tiles_data['tiles'][tile_id]["name"] == "ct_spawn"), None)
         self.map_width = self.map_data["map_width"]
         self.map_length = self.map_data["map_length"]
         self.map_height = self.map_data["map_height"]
+        self.outside_probability = self.map_data["outside_probability"]
+        self.layout_tiles = [-1] * self.map_width * self.map_length * self.map_height
         self.map_tiles = [-1] * self.map_width * self.map_length * self.map_height
 
     def get_index(self, x, y, z):
@@ -60,7 +65,7 @@ class MapGenerator:
         adjecant_faces = self.get_adjecant_faces(cx, cy, cz)
         if adjecant_faces[FACE_NZ] == FACE_TYPE_OUTSIDE:
             return PATTERN_OUTSIDE
-        elif FACE_TYPE_EDGE not in adjecant_faces and FACE_TYPE_INSIDE not in adjecant_faces and random.random() > 0.5:
+        elif FACE_TYPE_EDGE not in adjecant_faces and FACE_TYPE_INSIDE not in adjecant_faces and random.random() > self.outside_probability:
             return PATTERN_OUTSIDE
         else:
             faces = [-1] * 5
@@ -78,20 +83,75 @@ class MapGenerator:
                 elif adjecant_face == FACE_TYPE_OUTSIDE:
                     faces[face] = random.choice([FACE_TYPE_DOOR, FACE_TYPE_WALL])
                 else:
-                    print(f"unknown case - adjecant_face: {adjecant_face}")
+                    print(f"Warning: Unknown adjecant face.")
                     faces[face] = FACE_TYPE_WALL
-                # if face == FACE_PZ and faces[face] == FACE_TYPE_INSIDE:
-                #     faces[face] = FACE_TYPE_DOOR
+                    
             return "".join(map(str, faces))
 
-    def layout(self, seed=None):
-        # creates a map layout, which details from which tile can you pass between etc
+    def generate(self, seed=None):
         if seed is None: seed = random.randint(0, 100000)
         print(f"Laying out map with [{seed}]...")
         random.seed(seed)
 
+        self.pre_populate_map()
+        self.layout(seed)
+        self.populate(seed)
+        self.save()
+
+    def get_random_index(self, min_x, max_x, min_y, max_y, ignore=[]):
+        while True:
+            x = random.randint(min_x, max_x)
+            y = random.randint(min_y, max_y)
+            index = self.get_index(x, y, 0)
+            if index not in ignore:
+                return index
+
+    def get_random_indexes(self, min_x, max_x, min_y, max_y, number_of_indexes, ignore=[]):
+        indexes = []
+        for _ in range(number_of_indexes):
+            indexes.append(self.get_random_index(min_x, max_x, min_y, max_y, indexes + ignore))
+        return indexes
+
+    def pre_populate_map(self):
+        number_of_waypoints = 2
+        number_of_spawns = 1
+
+        t_spawn_indexes = self.get_random_indexes(1, self.map_width-2, 1, 1, number_of_spawns)
+        ct_spawn_indexes = self.get_random_indexes(1, self.map_width-2, self.map_length-2, self.map_length-2, number_of_spawns)
+        # way_points = self.get_random_indexes(2, self.map_width-3, 2, self.map_length-3, number_of_waypoints)
+        points = t_spawn_indexes + ct_spawn_indexes # + way_points
+
+        def get_step_towards(a, b):
+            ax, ay, _ = self.get_xyz(a)
+            bx, by, _ = self.get_xyz(b)
+            if ax == bx: ay += int(math.copysign(1, by - ay))
+            elif ay == by: ax += int(math.copysign(1, bx - ax))
+            else:
+                if bool(random.randint(0, 1)): ay += int(math.copysign(1, by - ay))
+                else: ax += int(math.copysign(1, bx - ax))
+            return self.get_index(ax, ay, 0)
+
+        def set_tile(index, tile_id):
+            self.layout_tiles[index] = self.tiles_data["tiles"][tile_id]["pattern_id"]
+            self.map_tiles[index] = tile_id
+
+        def connect_points(a, b):
+            set_tile(a, self.empty_id)
+            while a != b:
+                a = get_step_towards(a, b)
+                set_tile(a, self.empty_id)
+
+        # for i in range(len(points)):
+        #     j = random.randint(0, len(points)-1)
+        #     connect_points(points[i], points[j])
+
+        for index in t_spawn_indexes:
+            set_tile(index, self.t_spawn_id)
+        for index in ct_spawn_indexes:
+            set_tile(index, self.ct_spawn_id)
+
+    def layout(self, seed):
         inverse_patterns = { pattern : int(pattern_id) for (pattern_id, pattern) in self.tiles_data["patterns"].items()}
-        self.layout_tiles = [-1] * self.map_width * self.map_length * self.map_height
 
         index = 0
         while index < len(self.layout_tiles):
@@ -106,7 +166,6 @@ class MapGenerator:
         return True 
 
     def populate(self, seed):
-        print(f"Populating map with [{seed}]...")
         if str(seed) not in self.map_data["layouts"]:
             print("Must layout the seed first.")
             return False
@@ -116,19 +175,32 @@ class MapGenerator:
         tile_ids = {}
         for tile_id in self.tiles_data["tiles"]:
             tile = self.tiles_data["tiles"][tile_id]
+            if "manual" in tile and tile["manual"]:
+                continue
             pattern_id = tile["pattern_id"]
             if pattern_id not in tile_ids:
                 tile_ids[pattern_id] = []
             tile_ids[pattern_id].append(tile_id)
-
-        map_tiles = [-1] * len(layout_tiles)
+        
         for index in range(len(layout_tiles)):
-            pattern_id = layout_tiles[index]
-            tile_id = random.choice(tile_ids[pattern_id])
-            map_tiles[index] = tile_id
+            if self.map_tiles[index] == -1:
+                pattern_id = layout_tiles[index]
+                tile_id = random.choice(tile_ids[pattern_id])
+                self.map_tiles[index] = tile_id
 
-        self.map_data["maps"][seed] = map_tiles
+        self.map_data["maps"][seed] = self.map_tiles
         return True
+
+    def display_map(self):
+        for y in range(self.map_length):
+            for x in range(self.map_width):
+                index = self.get_index(x, y, 0)
+                tile = self.map_tiles[index]
+                if tile == self.empty_id: print(' ', end="")
+                elif tile == self.ct_spawn_id: print('C', end="")
+                elif tile == self.t_spawn_id: print('T', end="")
+                else: print('.', end="")
+            print("")
 
     def save(self):
         with open(self.map_file_path, "w") as map_file:
@@ -155,10 +227,5 @@ if __name__ == "__main__":
         seed = args.seed   
 
         map_generator = MapGenerator(file_path)
-        result = map_generator.layout(seed)
-        if not result: print("FAILED :(")
-
-        result = map_generator.populate(seed)
-        if not result: print("FAILED :(")
-
-        map_generator.save()
+        map_generator.generate(seed)
+        

@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSMP", "CSMP\CSMP.csproj", "{39203408-0C9B-4D21-8784-1C53355BE481}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSMP.Test", "CSMP.Test\CSMP.Test.csproj", "{707EA5DB-B8A5-4C4E-9CA8-54EFC8C9649B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{921FF882-D653-4D0F-8FD7-BAE580EEEC2F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sledge.Formats.Map", "Libraries\sledge-formats\Sledge.Formats.Map\Sledge.Formats.Map.csproj", "{D6AA35E4-15D3-4A1C-BE2E-B4E1A3639FC4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sledge.Formats", "Libraries\sledge-formats\Sledge.Formats\Sledge.Formats.csproj", "{D951C327-27B0-47B2-8B36-477FCC4B4A4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSMP.CLI", "CSMP.CLI\CSMP.CLI.csproj", "{EE9CB15B-C197-42A8-BB39-6AC9958C328E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39203408-0C9B-4D21-8784-1C53355BE481}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39203408-0C9B-4D21-8784-1C53355BE481}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39203408-0C9B-4D21-8784-1C53355BE481}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39203408-0C9B-4D21-8784-1C53355BE481}.Release|Any CPU.Build.0 = Release|Any CPU
+		{707EA5DB-B8A5-4C4E-9CA8-54EFC8C9649B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{707EA5DB-B8A5-4C4E-9CA8-54EFC8C9649B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{707EA5DB-B8A5-4C4E-9CA8-54EFC8C9649B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{707EA5DB-B8A5-4C4E-9CA8-54EFC8C9649B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6AA35E4-15D3-4A1C-BE2E-B4E1A3639FC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6AA35E4-15D3-4A1C-BE2E-B4E1A3639FC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6AA35E4-15D3-4A1C-BE2E-B4E1A3639FC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6AA35E4-15D3-4A1C-BE2E-B4E1A3639FC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D951C327-27B0-47B2-8B36-477FCC4B4A4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D951C327-27B0-47B2-8B36-477FCC4B4A4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D951C327-27B0-47B2-8B36-477FCC4B4A4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D951C327-27B0-47B2-8B36-477FCC4B4A4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE9CB15B-C197-42A8-BB39-6AC9958C328E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE9CB15B-C197-42A8-BB39-6AC9958C328E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE9CB15B-C197-42A8-BB39-6AC9958C328E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE9CB15B-C197-42A8-BB39-6AC9958C328E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D6AA35E4-15D3-4A1C-BE2E-B4E1A3639FC4} = {921FF882-D653-4D0F-8FD7-BAE580EEEC2F}
+		{D951C327-27B0-47B2-8B36-477FCC4B4A4D} = {921FF882-D653-4D0F-8FD7-BAE580EEEC2F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {06ACE643-8D0B-4804-819B-F0EE6A48809A}
+	EndGlobalSection
+EndGlobal

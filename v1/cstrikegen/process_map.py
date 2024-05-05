@@ -68,6 +68,8 @@ class MapProcessor:
                             vmf = self.get_component_vmf(SKY_ID)
                             vmf = translate(vmf, x * self.tile_width, y * self.tile_length, z * self.tile_height)
                             merge_vmf(map_vmf, vmf)
+            
+            # re-order ids
             solid_id = 0
             side_id = 0
             entity_id = 0
@@ -100,8 +102,6 @@ class MapProcessor:
         return tile_vmf
 
     def get_component_vmf(self, component_id):
-        if component_id == 26:
-            a = 1
         component = self.tiles_data["components"][str(component_id)]
         component_file_id = component["component_file"]
         if component_file_id not in self.cached_component_file_vmfs:
@@ -115,11 +115,11 @@ class MapProcessor:
         component_vmf = get_blank_vmf()
 
         if "solids" in component: component_solids = component["solids"]
-        elif "solid" in component_file_vmf["world"][0]: component_solids = component_file_vmf["world"][0]["solid"]
+        elif "solid" in component_file_vmf["world"][0]: component_solids = range(0, len(component_file_vmf["world"][0]["solid"]))
         else: component_solids = None
 
         if "entities" in component: component_entities = component["entities"]
-        elif "entity" in component_file_vmf: component_entities = [entity["id"] for entity in component_file_vmf["entity"]]
+        elif "entity" in component_file_vmf: component_entities =  range(0, len(component_file_vmf["entity"]))
         else: component_entities = None
         merge_vmf(component_vmf, component_file_vmf, solid_ids=component_solids, entity_ids=component_entities)
         
@@ -175,27 +175,69 @@ def format_plane(plane):
 
 def merge_vmf(a, b, solid_ids=None, entity_ids=None,debug=False):
     if "solid" in b["world"][0]:
-        if solid_ids:
+        if solid_ids is not None:
             for solid_id in solid_ids:
                 solid = b["world"][0]["solid"][solid_id]
                 a["world"][0]["solid"].append(solid)
         else:
             for solid in b["world"][0]["solid"]:
                 a["world"][0]["solid"].append(solid)
+
     if "entity" in b:
-        for entity in b["entity"]:
-            if entity_ids and entity["id"] not in entity_ids:
-                continue
-            a["entity"].append(entity)
+        if entity_ids is not None:
+            for entity_id in entity_ids:
+                entity = b["entity"][entity_id]
+                a["entity"].append(entity)
+        else:
+            for entity in b["entity"]:
+                a["entity"].append(entity)
 
 def get_blank_vmf():
     # TODO: Need to update this to have required contents
     return { 
-            "world": [{
-                "solid" : []
-            }],
-            "entity": []
-        }
+                "versioninfo":[
+                {
+                    "editorversion": "400",
+                    "editorbuild": "8357",
+                    "mapversion": "21",
+                    "formatversion": "100",
+                    "prefab": "0"
+                }],
+                "visgroups":[],
+                "viewsettings":[
+                    {
+                        "bSnapToGrid": "1",
+                        "bShowGrid": "1",
+                        "bShowLogicalGrid": "0",
+                        "nGridSpacing": "8w",
+                        "bShow3DGrid": "0"
+                    }
+                ],
+                "world":[
+                {
+                    "id": "1",
+                    "mapversion": "21",
+                    "classname": "worldspawn",
+                    "detailmaterial": "detail/detailsprites",
+                    "detailvbsp": "detail.vbsp",
+                    "maxpropscreenwidth": "-1",
+                    "skyname": "sky_day01_01",
+                    "solid" : []
+                }],
+                "entity": [],
+                "cameras": [
+                    {
+                        "activecamera": "-1"
+                    }
+                ],
+                "cordon":[
+                    {
+                        "mins": "(-1024 -1024 -1024)",
+                        "maxs": "(1024 1024 1024)",
+                        "active": "0"
+                    }
+                ]
+            }
 
 if __name__ == "__main__":
     import argparse

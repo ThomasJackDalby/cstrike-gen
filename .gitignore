@@ -1,7 +1,7 @@
 # .gitignore
 
 # General
-tiles/
+v1/tiles/
 components/
 __pycache__/
 cstrike_gen.egg-info/

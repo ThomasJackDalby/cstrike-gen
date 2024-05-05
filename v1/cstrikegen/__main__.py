@@ -1,7 +1,5 @@
 import argparse, sys
 
-from cstrike_gen import process_tiles 
-
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help="commands", dest="command")
@@ -11,10 +9,6 @@ def main():
 
     args = parser.parse_args()
     print(dir(args))
-
-    if args.command == "process-tiles":
-        
-        process_tiles.process_tiles(args.folder_path)
 
 if __name__ == "__main__":
     main()

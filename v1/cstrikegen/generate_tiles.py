@@ -1,7 +1,5 @@
-# 
-
 import json, os, itertools
-from cstrike_gen import *
+from cstrikegen.constants import *
 
 COLUMN_IDS = [1, 2, 3, 4]
 WALL_IDS = [5, 6, 7, 8]
@@ -26,34 +24,33 @@ class TileGenerator:
                 4 : "C:/Users/Tom/source/repos/thomasjackdalby/cstrike_gen/components/windows_v2.vmf"
             },
             "components" : {
-                1 : { "name" : "column_a0", "component_file" : 0, "solids" : [11] },
-                2 : { "name" : "column_a1", "component_file" : 0, "solids" : [7] },
-                3 : { "name" : "column_a2", "component_file" : 0, "solids" : [9] },
-                4 : { "name" : "column_a3", "component_file" : 0, "solids" : [10] },
-                5 : { "name" : "wall_a0", "component_file" : 0, "solids" : [3] },
-                6 : { "name" : "wall_a1", "component_file" : 0, "solids" : [8] },
-                7 : { "name" : "wall_a2", "component_file" : 0, "solids" : [1] },
-                8 : { "name" : "wall_a3", "component_file" : 0, "solids" : [13] },
-                9 : { "name" : "corner_a0", "component_file" : 0, "solids" : [16] },
-                10 : { "name" : "corner_a1", "component_file" : 0, "solids" : [15] },
-                11 : { "name" : "corner_a2", "component_file" : 0, "solids" : [14] },
-                12 : { "name" : "corner_a3", "component_file" : 0, "solids" : [17] },
-                13 : { "name" : "beam_a0", "component_file" : 0, "solids" : [4] },
-                14 : { "name" : "beam_a1", "component_file" : 0, "solids" : [5] },
-                15 : { "name" : "beam_a2", "component_file" : 0, "solids" : [12] },
-                16 : { "name" : "beam_a3", "component_file" : 0, "solids" : [6] },
-                17 : { "name" : "ground", "component_file" : 0, "solids" : [0] },
-                18 : { "name" : "roof", "component_file" : 0, "solids" : [2] },
-                19 : { "name" : "sky", "component_file" : 0, "solids" : [18] },
-                20 : { "name" : "t_spawn", "component_file" : 1, "solids" : [] },
-                21 : { "name" : "ct_spawn", "component_file" : 2, "solids" : [] },
+                1 : { "name" : "column_a0", "component_file" : 0, "solids" : [11], "entities" : [] },
+                2 : { "name" : "column_a1", "component_file" : 0, "solids" : [7] , "entities" : []},
+                3 : { "name" : "column_a2", "component_file" : 0, "solids" : [9], "entities" : []},
+                4 : { "name" : "column_a3", "component_file" : 0, "solids" : [10], "entities" : [] },
+                5 : { "name" : "wall_a0", "component_file" : 0, "solids" : [3], "entities" : [] },
+                6 : { "name" : "wall_a1", "component_file" : 0, "solids" : [8], "entities" : [] },
+                7 : { "name" : "wall_a2", "component_file" : 0, "solids" : [1], "entities" : [] },
+                8 : { "name" : "wall_a3", "component_file" : 0, "solids" : [13], "entities" : [] },
+                9 : { "name" : "corner_a0", "component_file" : 0, "solids" : [16], "entities" : [] },
+                10 : { "name" : "corner_a1", "component_file" : 0, "solids" : [15], "entities" : [] },
+                11 : { "name" : "corner_a2", "component_file" : 0, "solids" : [14], "entities" : [] },
+                12 : { "name" : "corner_a3", "component_file" : 0, "solids" : [17], "entities" : [] },
+                13 : { "name" : "beam_a0", "component_file" : 0, "solids" : [4], "entities" : [] },
+                14 : { "name" : "beam_a1", "component_file" : 0, "solids" : [5], "entities" : [] },
+                15 : { "name" : "beam_a2", "component_file" : 0, "solids" : [12], "entities" : [] },
+                16 : { "name" : "beam_a3", "component_file" : 0, "solids" : [6], "entities" : [] },
+                17 : { "name" : "ground", "component_file" : 0, "solids" : [0], "entities" : [] },
+                18 : { "name" : "roof", "component_file" : 0, "solids" : [2], "entities" : [0] },
+                19 : { "name" : "sky", "component_file" : 0, "solids" : [18], "entities" : [] },
+                20 : { "name" : "t_spawn", "component_file" : 1 },
+                21 : { "name" : "ct_spawn", "component_file" : 2 },
                 22 : { "name" : "door_a0", "component_file" : 3, "solids" : [6, 7, 8], "entities" : [] },
                 23 : { "name" : "door_a1", "component_file" : 3, "solids" : [9, 10, 11], "entities" : [] },
                 24 : { "name" : "door_a2", "component_file" : 3, "solids" : [3, 4, 5], "entities" : [] },
                 25 : { "name" : "door_a3", "component_file" : 3, "solids" : [0, 1, 2], "entities" : [] },
                 26 : { "name" : "door_a5", "component_file" : 3, "solids" : [12, 13, 14, 15], "entities" : [0] },
                 27 : { "name" : "window_a1", "component_file" : 4, "solids" : [9, 10, 11] },
-
             },
             "patterns" : {
                 0 : "00000",
